@@ -1,0 +1,95 @@
+01-12 21:12:43 database: flush
+org.h2.message.DbException: General error: "java.lang.IllegalStateException: The file is locked: nio:E:/ETC-Project/0_CrawlingBugReport-FIN/DB/DUP/attach/swt.mv.db [1.4.184/7]" [50000-184]
+	at org.h2.message.DbException.get(DbException.java:168)
+	at org.h2.message.DbException.convert(DbException.java:295)
+	at org.h2.mvstore.db.MVTableEngine$1.uncaughtException(MVTableEngine.java:93)
+	at org.h2.mvstore.MVStore.panic(MVStore.java:377)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:360)
+	at org.h2.mvstore.MVStore$Builder.open(MVStore.java:2759)
+	at org.h2.mvstore.db.MVTableEngine$Store.<init>(MVTableEngine.java:162)
+	at org.h2.mvstore.db.MVTableEngine.init(MVTableEngine.java:98)
+	at org.h2.engine.Database.getPageStore(Database.java:2379)
+	at org.h2.engine.Database.open(Database.java:666)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at java.sql.DriverManager.getConnection(Unknown Source)
+	at java.sql.DriverManager.getConnection(Unknown Source)
+	at ver3.attachment.C_DAO.<init>(C_DAO.java:17)
+	at ver3.attachment.A_Main.main(A_Main.java:32)
+Caused by: org.h2.jdbc.JdbcSQLException: General error: "java.lang.IllegalStateException: The file is locked: nio:E:/ETC-Project/0_CrawlingBugReport-FIN/DB/DUP/attach/swt.mv.db [1.4.184/7]" [50000-184]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	... 25 more
+Caused by: java.lang.IllegalStateException: The file is locked: nio:E:/ETC-Project/0_CrawlingBugReport-FIN/DB/DUP/attach/swt.mv.db [1.4.184/7]
+	at org.h2.mvstore.DataUtils.newIllegalStateException(DataUtils.java:773)
+	at org.h2.mvstore.FileStore.open(FileStore.java:170)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:346)
+	... 20 more
+01-12 21:12:45 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:12:47 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:12:48 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:12:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:08 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:15 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:15 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:17 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:20 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:26 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:13:59 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:10 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:20 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:26 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:27 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:28 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]
+01-12 21:14:40 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TEST" not found; SQL statement:
+INSERT INTO test (bug_id, attach_id, type, desc) VALUES (?, ?, ?, ?) [42102-184]

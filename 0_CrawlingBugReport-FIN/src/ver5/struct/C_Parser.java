@@ -1,4 +1,4 @@
-package ver1.finish.ver;
+package ver5.struct;
 
 
 import java.text.SimpleDateFormat;
@@ -163,22 +163,101 @@ public class C_Parser {
 			String severity = severityList.get(bugID);
 			String bugSum = doc.select("*#short_desc_nonedit_display").text();
 			String bugDes = doc.select("div#c0 .bz_comment_text").text();
+			
+			String reproduct = "";
+			String observed = "";
+			String expected ="";
 			if(Property.getInstance().getTargetStruct()){
 				if(! ((bugDes.contains("repro") || bugDes.contains("REPRO") || bugDes.contains("Repro") ||bugDes.contains("step") || bugDes.contains("STEP") || bugDes.contains("Step")) 
 						&& (bugDes.contains("EXPECT") || bugDes.contains("expect") || bugDes.contains("Expect")) 
 						&& (bugDes.contains("OBSERV") || bugDes.contains("observ") || bugDes.contains("Observ") || bugDes.contains("Actual") || bugDes.contains("actual") || bugDes.contains("ACTUAL"))
-						&& (bugDes.contains("result") || bugDes.contains("Result")))){
+						&& (bugDes.contains("result") || bugDes.contains("Result") || bugDes.contains("RESULT")))){
 					//System.out.println(bugDes);
 					System.err.println(bugID+" DOESNOT HAVE STRUCT INFO.");
 					return false;
 				}
 			}
+			
+			int repStartIndex = -1;
+			int obsStartIndex = -1;
+			int expStartIndex = -1;
+			
+			
+			if(bugDes.contains("repro"))
+				repStartIndex = bugDes.indexOf("repro");
+			else if(bugDes.contains("REPRO"))
+				repStartIndex = bugDes.indexOf("REPRO");
+			else if(bugDes.contains("Repro"))
+				repStartIndex = bugDes.indexOf("Repro");
+			else if(bugDes.contains("step"))
+				repStartIndex = bugDes.indexOf("step");
+			else if(bugDes.contains("STEP"))
+				repStartIndex = bugDes.indexOf("STEP");
+			else repStartIndex = bugDes.indexOf("Step");
+			
+			if(bugDes.contains("OBSERV"))
+				obsStartIndex = bugDes.indexOf("OBSERV");
+			else if(bugDes.contains("observ"))
+				obsStartIndex = bugDes.indexOf("observ");
+			else if(bugDes.contains("Observ"))
+				obsStartIndex = bugDes.indexOf("Observ");
+			else if(bugDes.contains("Actual"))
+				obsStartIndex = bugDes.indexOf("Actual");
+			else if(bugDes.contains("actual"))
+				obsStartIndex = bugDes.indexOf("actual");
+			else obsStartIndex = bugDes.indexOf("ACTUAL");
+			
+			if(bugDes.contains("EXPECT"))
+				expStartIndex = bugDes.indexOf("EXPECT");
+			else if(bugDes.contains("expect"))
+				expStartIndex = bugDes.indexOf("expect");
+			else expStartIndex = bugDes.indexOf("Expect");
+			
+			int repEndIndex = repStartIndex;
+			int obsEndIndex = obsStartIndex;
+			int expEndIndex = expStartIndex;
+			if(repEndIndex > obsEndIndex){
+				if(repEndIndex > expEndIndex){
+					repEndIndex = bugDes.length()-1;
+					if(obsEndIndex > expEndIndex){
+						obsEndIndex = repStartIndex-1;
+						expEndIndex = obsStartIndex-1;
+					}else{
+						expEndIndex = repStartIndex-1;
+						obsEndIndex = expStartIndex-1;
+					}					
+				}else {
+					expEndIndex = bugDes.length()-1;
+					repEndIndex = expStartIndex-1;
+					obsEndIndex = repStartIndex-1;
+				}
+			}else if (obsEndIndex > expEndIndex){
+				if(obsEndIndex > repEndIndex){
+					obsEndIndex = bugDes.length()-1;
+					if(expEndIndex > repEndIndex){
+						expEndIndex = obsStartIndex-1;
+						repEndIndex = expStartIndex-1;
+					}else{
+						expEndIndex = repStartIndex-1;
+						repEndIndex = obsStartIndex-1;
+					}
+				}else{
+					expEndIndex = bugDes.length()-1;
+					obsEndIndex = expStartIndex-1;
+					repEndIndex = obsStartIndex-1;
+				}
+			}
+				
+			
+			
+			
 			if(bugDes.length()>99999)bugDes=bugDes.substring(0, 9999);			
 			
 			if(contents.equals(bugDes))
 				return false;
 			else{
-				db.insertBugReport(bugID, prdName, compName,prodVersion, bugAut.replace("'","."), openDate, modifiedDate, bugStatus, severity, bugSum.replace("'","."), bugDes.replace("'","."));
+				db.insertBugReport(bugID, prdName, compName,prodVersion, bugAut.replace("'","."), openDate, modifiedDate, bugStatus, severity, bugSum.replace("'","."), bugDes.replace("'","."), 
+						bugDes.substring(repStartIndex,repEndIndex), bugDes.substring(obsStartIndex,obsEndIndex), bugDes.substring(expStartIndex,expEndIndex));
 				contents = bugDes;			
 				if(doc.select("span#static_bug_status").text().contains("bug")){				
 					String dupID = doc.select("span#static_bug_status").text().split(" of bug ")[1];

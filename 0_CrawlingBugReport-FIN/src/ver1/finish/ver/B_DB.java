@@ -16,7 +16,7 @@ public class B_DB {
 	{
 		Class.forName("org.h2.Driver");
 		conn = DriverManager.getConnection("jdbc:h2:./DB/"+Property.getInstance().getTargetResolution()+"/"+A_Main.project,"sa","");
-		System.out.println("-------- CONNECT WITH DUPLICATE DB ----------");;
+		System.out.println("-------- CONNECT WITH "+Property.getInstance().getTargetResolution()+" "+A_Main.project+" DB ----------");;
 		
 		if(conn!=null) createTable();
 	}		
@@ -152,7 +152,7 @@ public class B_DB {
 		q.execute("DROP TABLE DUPLICATE;");
 		System.out.println("---DELETE DUPLICATE TABLE...");
 		q.execute("DROP TABLE FIXEDFILE;");
-		System.out.println("---DELETE FIXED FILE TABLE...");
+		System.out.println("---DELETE FIXEDFILE TABLE...");
 		q.execute("DROP TABLE COSINESIMILARITY;");
 		System.out.println("---DELETE COSINE SIMILARITY TABLE...");
 	}

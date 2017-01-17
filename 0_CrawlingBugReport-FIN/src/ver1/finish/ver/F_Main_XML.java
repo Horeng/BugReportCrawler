@@ -9,19 +9,20 @@ import common.Comment;
 import common.Commit;
 import common.ExtBugReport;
 import common.FileInfo;
+import common.Property;
 
 public class F_Main_XML {
 	
 	static String project = "ui";; // swt, ui, aspectj, jdt, birt 
 	//static String outputPath ="E:\\0_Research\\2017-1_DuplicatedBugReport\\Duplicated";
-	static String outputPath ="E:\\0_Research\\2017-1_DuplicatedBugReport\\Duplicated";
+	static String outputPath;;
 	public static void main(String[] a) throws Exception
 	{
 		G_DAO dao = new G_DAO();
 		ArrayList<ExtBugReport> bugRepository = dao.getBugIdList();
 		
 		System.out.println(bugRepository.size());
-		
+		outputPath = Property.getInstance().getOutputPath()+"\\"+Property.getInstance().getTargetResolution();
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(outputPath+project+"BugRepository.xml"));
 		

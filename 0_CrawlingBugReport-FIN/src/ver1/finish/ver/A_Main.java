@@ -3,7 +3,7 @@ package ver1.finish.ver;
 import common.Property;
 
 public class A_Main {
-	static String project =""; // swt, ui, aspectj, jdt, birt 
+	static String project =""; // swt, ui, aspectj, jdt, birt
 	public static void main(String[] a) throws Exception
 	{
 		project = Property.getInstance().getTargetProduct();

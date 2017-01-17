@@ -29,6 +29,7 @@ public class Property {
 	 private static String targetUntil;
 	 private static String targetResolution;
 	 private static String gitPosition;
+	 private static Boolean targetStruct;
 	 
 	 private static String outputPath;
 	
@@ -50,31 +51,33 @@ public class Property {
 		// Do nothing
 	}
 	
-	public static void createInstance(String targetProduct, String targetSince, String targetUntil, String targetResolution, String gitPosition, String outputPath) {
+	public static void createInstance(String targetProduct, String targetSince, String targetUntil, String targetResolution, String gitPosition, String outputPath, Boolean targetStruct) {
 		if (null == p) {
-			p = new Property(targetProduct, targetSince, targetUntil,targetResolution, gitPosition, outputPath);
+			p = new Property(targetProduct, targetSince, targetUntil,targetResolution, gitPosition, outputPath,targetStruct);
 		} else {
-			p.setValues(targetProduct, targetSince, targetUntil, targetResolution, gitPosition, outputPath);
+			p.setValues(targetProduct, targetSince, targetUntil, targetResolution, gitPosition, outputPath,targetStruct);
 		}
 	}
 	
-	private void setValues(String targetProduct2, String targetSince, String targetUntil, String targetResolution, String gitPosition, String outputPath) {
+	private void setValues(String targetProduct2, String targetSince, String targetUntil, String targetResolution, String gitPosition, String outputPath, Boolean targetStruct2) {
 		setTargetProduct(targetProduct2);
 		setTargetSince(targetSince);
 		setTargetUntil(targetUntil);
 		setTargetResolution(targetResolution);
 		setGitPosition(gitPosition);
 		setOutputPath(outputPath);
+		setTargetStruct(targetStruct2);
 		
 	}
 
-	public Property(String targetProduct2, String targetSince, String targetUntil, String targetResolution, String gitPosition, String outputPath) {
+	public Property(String targetProduct2, String targetSince, String targetUntil, String targetResolution, String gitPosition, String outputPath, Boolean targetStruct2) {
 		setTargetProduct(targetProduct2);
 		setTargetSince(targetSince);
 		setTargetUntil(targetUntil);
 		setTargetResolution(targetResolution);
 		setGitPosition(gitPosition);
 		setOutputPath(outputPath);
+		setTargetStruct(targetStruct2);
 	}
 
 	public static Property loadInstance(String targetProduct) throws Exception {
@@ -85,8 +88,11 @@ public class Property {
 		targetProduct = targetProduct.toUpperCase();
 		targetSince = Property.readProperty("TARGET_SINCE");
 		targetUntil = Property.readProperty("TARGET_UNTIL");
-		
-		p.setValues(targetProduct, targetSince, targetUntil, targetResolution, gitPosition, outputPath);
+		targetResolution = Property.readProperty("TARGET_RESOLUTION");
+		gitPosition = Property.readProperty("TARGET_GIT_POSITION");		 
+		outputPath = Property.readProperty("OUTPUT_XML_PATH");;
+		targetStruct = Boolean.parseBoolean(Property.readProperty("TARGET_STRUCT"));
+		p.setValues(targetProduct, targetSince, targetUntil, targetResolution, gitPosition, outputPath, targetStruct);
 		
 		return p;
 	}
@@ -96,7 +102,8 @@ public class Property {
 		return loadInstance(targetProduct);
 	}
 	
-	public static Property getInstance() {
+	public static Property getInstance() throws Exception {
+		loadInstance();
 		return p;
 	}
 	
@@ -156,6 +163,14 @@ public class Property {
 
 	public static void setOutputPath(String outputPath) {
 		Property.outputPath = outputPath;
+	}
+
+	public static Boolean getTargetStruct() {
+		return targetStruct;
+	}
+
+	public static void setTargetStruct(Boolean targetStruct) {
+		Property.targetStruct = targetStruct;
 	}
 	
 }

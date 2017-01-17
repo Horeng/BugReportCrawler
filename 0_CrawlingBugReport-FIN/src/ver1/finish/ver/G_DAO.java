@@ -15,6 +15,7 @@ import common.Comment;
 import common.Commit;
 import common.ExtBugReport;
 import common.FileInfo;
+import common.Property;
 
 public class G_DAO {
 	
@@ -27,8 +28,8 @@ static String attachUrl = "https://bugs.eclipse.org/bugs/attachment.cgi?id=";
 	G_DAO() throws Exception
 	{
 		Class.forName("org.h2.Driver");
-		conn = DriverManager.getConnection("jdbc:h2:./DB/DUP/"+F_Main_XML.project,"sa","");
-		System.out.println("---Connected...");;		
+		conn = DriverManager.getConnection("jdbc:h2:./DB/"+Property.getInstance().getTargetResolution()+"/"+F_Main_XML.project,"sa","");
+		System.out.println("---Connected..."+Property.getInstance().getTargetResolution()+" "+F_Main_XML.project);		
 	}		
 	
 	public ArrayList<ExtBugReport> getBugIdList(){
@@ -98,7 +99,7 @@ static String attachUrl = "https://bugs.eclipse.org/bugs/attachment.cgi?id=";
 					if(!dupBugList.contains(rs2.getInt("DUP_BUG_ID")))
 						dupBugList.add(rs2.getInt("DUP_BUG_ID"));
 				}
-				if(dupBugList.isEmpty())
+				if(Property.getInstance().getTargetResolution().equals("DUPLICATED") && dupBugList.isEmpty())
 					continue;
 				
 				ArrayList<String> commitIDList = new ArrayList<String>();

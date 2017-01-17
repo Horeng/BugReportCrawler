@@ -38,16 +38,17 @@ public class C_Parser {
 		String targetResolution = Property.getInstance().getTargetResolution();
 		//search setting
 		String url = "";
-		if(A_Main.project.equals("swt") || A_Main.project.equals("ui")){
+		if(A_Main.project.equals("SWT") || A_Main.project.equals("UI")){
 			url = "https://bugs.eclipse.org/bugs/buglist.cgi?chfieldfrom="+targetSince+"&chfieldto="+targetUntil+"&component="+A_Main.project
 					+"&limit=0&order=bug_status%2Cpriority%2Cassigned_to%2Cbug_id&product=platform&query_format=advanced&resolution="+targetResolution;
-		}else if(A_Main.project.equals("jdt")){
+		}else if(A_Main.project.equals("JDT")){
 			url = "https://bugs.eclipse.org/bugs/buglist.cgi?chfieldfrom="+targetSince+"&chfieldto="+targetUntil+"&component=ui"
 					+"&limit=0&order=bug_status%2Cpriority%2Cassigned_to%2Cbug_id&query_format=advanced&resolution="+targetResolution+"&product="+A_Main.project;
 		}else
 			url = "https://bugs.eclipse.org/bugs/buglist.cgi?chfieldfrom="+targetSince+"&chfieldto="+targetUntil+"&"
 			+"limit=0&order=bug_status%2Cpriority%2Cassigned_to%2Cbug_id&query_format=advanced&resolution="+targetResolution+"&product="+A_Main.project;
 		
+		System.out.println(url);
 		Document doc = Jsoup.connect(url).maxBodySize(0).timeout(100000).get();
 		System.out.println("GET SUCCESS");
 		//normal major critical blocker enhancement minor trivial
@@ -76,14 +77,14 @@ public class C_Parser {
 		//Number Of COMMIT
 		for(int i=0;i<id.length;i++)
 		{
-			parse(id[i]);
-			System.out.println(i +":" + id[i] +" ORIGINAL LIST FINISH");
+			if(parse(id[i]))
+				System.out.println(i +":" + id[i] +" ORIGINAL LIST FINISH");
 		}
 		//dupList = db.getDupID();
 		for(int i=0;i<dupList.size();i++)
 		{
-			parse(dupList.get(i));
-			System.out.println(i +":" + dupList.get(i)+" DUP LIST FINISH // "+dupList.size());
+			if(parse(dupList.get(i)))
+				System.out.println(i +":" + dupList.get(i)+" DUP LIST FINISH // "+dupList.size());
 		}
 		
 		//dupList = db.getBugID();
@@ -135,7 +136,7 @@ public class C_Parser {
 	}
 	
 	String contents = "";
-	public void parse(int bugID) throws Exception
+	public boolean parse(int bugID) throws Exception
 	{
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar1; Calendar calendar2;
@@ -162,10 +163,18 @@ public class C_Parser {
 			String severity = severityList.get(bugID);
 			String bugSum = doc.select("*#short_desc_nonedit_display").text();
 			String bugDes = doc.select("div#c0 .bz_comment_text").text();
-			if(bugDes.length()>99999)bugDes=bugDes.substring(0, 9999);
+			if(Property.getInstance().getTargetStruct()){
+				if(! ((bugDes.contains("rep") || bugDes.contains("REP") || bugDes.contains("Rep") ||bugDes.contains("step") || bugDes.contains("STEP")) 
+						&& (bugDes.contains("EXP") || bugDes.contains("exp") || bugDes.contains("Exp") || bugDes.contains("result")) && (bugDes.contains("OBS") || bugDes.contains("obser") || bugDes.contains("result")))){
+					//System.out.println(bugDes);
+					System.err.println(bugID+" DOESNOT HAVE STRUCT INFO.");
+					return false;
+				}
+			}
+			if(bugDes.length()>99999)bugDes=bugDes.substring(0, 9999);			
 			
 			if(contents.equals(bugDes))
-				return;
+				return false;
 			else{
 				db.insertBugReport(bugID, prdName, compName,prodVersion, bugAut.replace("'","."), openDate, modifiedDate, bugStatus, severity, bugSum.replace("'","."), bugDes.replace("'","."));
 				contents = bugDes;			
@@ -253,6 +262,7 @@ public class C_Parser {
 			e.printStackTrace();
 		
 		}
+		return true;
 		
 
 	}

@@ -13,7 +13,7 @@ import common.Property;
 
 public class F_Main_XML {
 	
-	static String project = "ui";; // swt, ui, aspectj, jdt, birt 
+	static String project = "swt";; // swt, ui, aspectj, jdt, birt 
 	//static String outputPath ="E:\\0_Research\\2017-1_DuplicatedBugReport\\Duplicated";
 	static String outputPath;;
 	public static void main(String[] a) throws Exception

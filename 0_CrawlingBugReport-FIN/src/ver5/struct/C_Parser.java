@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //import java.io.File;
 //import java.util.Scanner;
@@ -143,7 +145,7 @@ public class C_Parser {
 		calendar1 = Calendar.getInstance();
 		calendar2 = Calendar.getInstance();
 		try{
-			Document doc = Jsoup.connect(url+bugID).timeout(0).get();
+			Document doc = Jsoup.connect(url+bugID).timeout(3000).get();
 			String prdName = doc.select("td#field_container_product").text();
 			String compName = doc.select("td#field_container_component").text();		
 			Elements table = doc.select("td#bz_show_bug_column_1 table");
@@ -164,6 +166,39 @@ public class C_Parser {
 			String bugSum = doc.select("*#short_desc_nonedit_display").text();
 			String bugDes = doc.select("div#c0 .bz_comment_text").text();
 			
+			String thresholdDate = openDate;
+			int count = 0;
+	    	int j = 0;
+			for(j=1;;j++)
+			{
+				String bugCommentN = "c"+j;
+				String query = "div#"+bugCommentN+" .vcard";
+				String bugCommentAut = doc.select(query).text();				
+				if(bugCommentAut.equals(""))
+					break;
+		  		query = "div#"+bugCommentN+" .bz_comment_text";
+		  		String bugCommentText = doc.select(query).text();
+		  		try
+		  		{
+		  			if(bugCommentText.length()>99999)
+		  			{
+		  				System.out.println("CUT BUG REPORT");
+		  				bugCommentText=bugCommentText.substring(0, 9999);
+		  			}
+		  		}
+		  		catch(Exception e){ System.out.println("TOO BIG COMMENT");} 
+		  		
+		  		query = "div#"+bugCommentN+" .bz_comment_time";
+		  		String bugCommentTime = doc.select(query).text();
+		  		if(bugAut.equals(bugCommentAut)){
+		  			thresholdDate = bugCommentTime.substring(0, 19)+":00";		  			
+				}else
+					count++;
+		  		db.insertComment(bugID, bugCommentTime.substring(0, 19), bugCommentText.replace("'","."), bugCommentAut.replace("'","."));
+			}
+			
+			
+			// MISOO STRUCTURE DATA
 			String reproduct = "";
 			String observed = "";
 			String expected ="";
@@ -183,17 +218,18 @@ public class C_Parser {
 			int expStartIndex = -1;
 			
 			
-			if(bugDes.contains("repro"))
-				repStartIndex = bugDes.indexOf("repro");
-			else if(bugDes.contains("REPRO"))
-				repStartIndex = bugDes.indexOf("REPRO");
-			else if(bugDes.contains("Repro"))
-				repStartIndex = bugDes.indexOf("Repro");
-			else if(bugDes.contains("step"))
+			if(bugDes.contains("step"))
 				repStartIndex = bugDes.indexOf("step");
 			else if(bugDes.contains("STEP"))
 				repStartIndex = bugDes.indexOf("STEP");
-			else repStartIndex = bugDes.indexOf("Step");
+			else if(bugDes.contains("Step"))
+				repStartIndex = bugDes.indexOf("Step");
+			else if(bugDes.contains("repro"))
+				repStartIndex = bugDes.indexOf("repro");
+			else if(bugDes.contains("REPRO"))
+				repStartIndex = bugDes.indexOf("REPRO");
+			else 
+				repStartIndex = bugDes.indexOf("Repro");
 			
 			if(bugDes.contains("OBSERV"))
 				obsStartIndex = bugDes.indexOf("OBSERV");
@@ -242,22 +278,39 @@ public class C_Parser {
 						repEndIndex = obsStartIndex-1;
 					}
 				}else{
-					expEndIndex = bugDes.length()-1;
-					obsEndIndex = expStartIndex-1;
-					repEndIndex = obsStartIndex-1;
+					repEndIndex = bugDes.length()-1;
+					obsEndIndex = repStartIndex-1;
+					expEndIndex = obsStartIndex-1;
 				}
 			}
 				
 			
-			
-			
+			// MISOO Stack Trace Regular Expression
+		    String stackTrace ="";
+		    String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*" +
+		        		"[a-zA-Z_<(][a-zA-Z0-9_\\-$>);/\\[]*" +
+		        		"\\(([a-zA-Z_][a-zA-Z0-9_\\-]*\\.java:[0-9]*|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)inlined compiled code\\)|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)compiled code\\)|(?i)native method|(?i)unknown source)\\))";
+		        
+		    Pattern r = Pattern.compile(pattern);
+		    Matcher m = r.matcher(bugDes);
+	        while (m.find()) {
+	        	stackTrace =  stackTrace+"\n"+m.group();
+	        }
+	        		
 			if(bugDes.length()>99999)bugDes=bugDes.substring(0, 9999);			
 			
+			//MISOO GET HISTORY NUMBER
+			Document doc3 = Jsoup.connect("https://bugs.eclipse.org/bugs/show_activity.cgi?id="+bugID).maxBodySize(0).timeout(0).get();
+			Elements historyList = doc3.select("div#bugzilla-body table tbody tr");
+			
+			System.out.println(j+" "+historyList.size());
+			
 			if(contents.equals(bugDes))
-				return false;
+				return false;			
 			else{
 				db.insertBugReport(bugID, prdName, compName,prodVersion, bugAut.replace("'","."), openDate, modifiedDate, bugStatus, severity, bugSum.replace("'","."), bugDes.replace("'","."), 
-						bugDes.substring(repStartIndex,repEndIndex), bugDes.substring(obsStartIndex,obsEndIndex), bugDes.substring(expStartIndex,expEndIndex));
+						bugDes.substring(repStartIndex,repEndIndex).replace("'", "."), bugDes.substring(obsStartIndex,obsEndIndex).replace("'", "."), 
+						bugDes.substring(expStartIndex,expEndIndex).replace("'", "."),"",stackTrace,"","",j,historyList.size()-1);
 				contents = bugDes;			
 				if(doc.select("span#static_bug_status").text().contains("bug")){				
 					String dupID = doc.select("span#static_bug_status").text().split(" of bug ")[1];
@@ -268,40 +321,11 @@ public class C_Parser {
 				}
 			}
 			
-			String thresholdDate = openDate;
-			int count = 0;
-	    	
-			for(int j=1;;j++)
-			{
-				String bugCommentN = "c"+j;
-				String query = "div#"+bugCommentN+" .vcard";
-				String bugCommentAut = doc.select(query).text();				
-				if(bugCommentAut.equals(""))
-					break;
-		  		query = "div#"+bugCommentN+" .bz_comment_text";
-		  		String bugCommentText = doc.select(query).text();
-		  		try
-		  		{
-		  			if(bugCommentText.length()>99999)
-		  			{
-		  				System.out.println("CUT BUG REPORT");
-		  				bugCommentText=bugCommentText.substring(0, 9999);
-		  			}
-		  		}
-		  		catch(Exception e){ System.out.println("TOO BIG COMMENT");} 
-		  		
-		  		query = "div#"+bugCommentN+" .bz_comment_time";
-		  		String bugCommentTime = doc.select(query).text();
-		  		if(bugAut.equals(bugCommentAut)){
-		  			thresholdDate = bugCommentTime.substring(0, 19)+":00";		  			
-				}else
-					count++;
-		  		db.insertComment(bugID, bugCommentTime.substring(0, 19), bugCommentText.replace("'","."), bugCommentAut.replace("'","."));
-			}
+			
 			
 			//System.out.println(openDate+" "+thresholdDate);
 			Elements attachments = doc.select("a[href][title]");		
-			for(int j = 1;j<10; j++){
+			for(j = 1;j<10; j++){
 				String bugAttachN = "a"+j;
 				String date = "";
 				String data = doc.select("table#attachment_table").text();

@@ -45,13 +45,20 @@ public class B_DB {
 					+ "BUG_DES VARCHAR(99999),"
 					+ "BUG_DES_STEP VARCHAR(9999),"
 					+ "BUG_DES_OBS VARCHAR(9999),"
-					+ "BUG_DES_EXP VARCHAR(9999));");
+					+ "BUG_DES_EXP VARCHAR(9999),"
+					+ "BUG_DES_PATCH VARCHAR(99999),"
+					+ "BUG_DES_STRACE VARCHAR(9999),"
+					+ "BUG_DES_CODE_EX VARCHAR(9999),"
+					+ "BUG_DES_ENUM VARCHAR(9999),"
+					+ "NUM_COMMENT INT,"
+					+ "NUM_HISTORY INT);");
 			
 			System.out.println("---BUG REPORT TABLE CREATED...");
 		}
 		catch(Exception e)
 		{
 			System.out.println("---BUG REPORT TABLE CREATION ERROR...");
+			//e.printStackTrace();
 		}
 
 		try
@@ -161,13 +168,15 @@ public class B_DB {
 	}
 		
 	public void insertBugReport(int id,String prdName, String compName, String prodVersion, String author, String openDate, String modifiedDate, 
-			String status, String severity, String summary, String description, String reproduct, String observed, String expected) throws Exception
+			String status, String severity, String summary, String description, String reproduct, String observed, String expected,String patch, String sTrace,
+			String sourceCode,String enumer,int numComment,int numHistory) throws Exception
 	{
 		try
 		{
 		Statement q = conn.createStatement();
 		q.execute("INSERT INTO BUG_REPORT VALUES ("+ id + ",'"+prdName+"','"+compName+"','"+prodVersion+"','"+author+"','"+openDate+"','"+modifiedDate+"','"+status
-					+"','"+severity+"','"+summary+"','"+description+"','"+reproduct+"','"+observed+"','"+expected+"');");
+					+"','"+severity+"','"+summary+"','"+description+"','"+reproduct+"','"+observed+"','"+expected+"','"+patch+"','"+sTrace+"','"+sourceCode+"','"+enumer+"',"
+							+ numComment+","+numComment+")");
 		}
 		catch(Exception e)
 		{

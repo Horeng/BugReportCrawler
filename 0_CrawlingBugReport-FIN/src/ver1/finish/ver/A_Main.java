@@ -8,7 +8,7 @@ public class A_Main {
 	{
 		project = Property.getInstance().getTargetProduct();
 		B_DB db = new B_DB();
-		db.dropTable();
+		db.dropTable2();
 		D_Crawler cr = new D_Crawler();//RUN
 	}
 

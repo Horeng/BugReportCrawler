@@ -31,15 +31,41 @@ public class B_DB {
 		Statement q = conn.createStatement();
 		try
 		{
-			q.execute("Create Table BUG_REPORT("
+			q.execute("Create Table Initial_BUG_REPORT("
 					+ "BUG_ID int PRIMARY KEY,"
+					+ "BUG_AUT VARCHAR(255),"
 					+ "PRD_NAME varchar(255),"
 					+ "COMP_NAME varchar(255),"
 					+ "PRD_VER varchar(50),"
-					+ "BUG_AUT VARCHAR(255),"
+					+ "BUG_HW varchar(128),"
+					+ "BUG_ASSIGNEE varchar(255),"					
 					+ "BUG_OPEN_DATE DATETIME,"
 					+ "BUG_MODIFY_DATE DATETIME,"
 					+ "BUG_STATUS VARCHAR(255),"
+					+ "BUG_PRIOR VARCHAR(128),"
+					+ "BUG_SEVER VARCHAR(255),"
+					+ "BUG_SUM VARCHAR(255),"
+					+ "BUG_DES VARCHAR(99999));");
+			
+			System.out.println("---Initial BUG REPORT TABLE CREATED...");
+		}catch(Exception e)
+		{
+			System.out.println("---Initial BUG REPORT TABLE CREATION ERROR...");
+		}
+		try
+		{
+			q.execute("Create Table BUG_REPORT("
+					+ "BUG_ID int PRIMARY KEY,"
+					+ "BUG_AUT VARCHAR(255),"
+					+ "PRD_NAME varchar(255),"
+					+ "COMP_NAME varchar(255),"
+					+ "PRD_VER varchar(50),"
+					+ "BUG_HW varchar(128),"
+					+ "BUG_ASSIGNEE varchar(255),"					
+					+ "BUG_OPEN_DATE DATETIME,"
+					+ "BUG_MODIFY_DATE DATETIME,"
+					+ "BUG_STATUS VARCHAR(255),"
+					+ "BUG_PRIOR VARCHAR(128),"
 					+ "BUG_SEVER VARCHAR(255),"
 					+ "BUG_SUM VARCHAR(255),"
 					+ "BUG_DES VARCHAR(99999));");
@@ -140,11 +166,13 @@ public class B_DB {
 		
 	}
 
-	public void dropTable() throws Exception
+	public void dropTable2() throws Exception
 	{
 		Statement q = conn.createStatement();
 		q.execute("DROP TABLE BUG_REPORT;");
 		System.out.println("---DELETE BUG REPORT TABLE...");
+		q.execute("DROP TABLE INITIAL_BUG_REPORT;");
+		System.out.println("---DELETE INITIAL BUG REPORT TABLE...");
 		q.execute("DROP TABLE COMMENT;");
 		System.out.println("---DELETE COMMENT TABLE...");
 		q.execute("DROP TABLE ATTACHMENT;");
@@ -156,15 +184,50 @@ public class B_DB {
 		q.execute("DROP TABLE COSINESIMILARITY;");
 		System.out.println("---DELETE COSINE SIMILARITY TABLE...");
 	}
+	
+	public void dropTable() throws Exception
+	{
+		Statement q = conn.createStatement();
+		q.execute("DELETE FROM BUG_REPORT;");
+		System.out.println("---DELETE BUG REPORT TABLE...");
+		q.execute("DELETE FROM INITIAL_BUG_REPORT;");
+		System.out.println("---DELETE INITIAL BUG REPORT TABLE...");
+		q.execute("DELETE FROM  COMMENT;");
+		System.out.println("---DELETE COMMENT TABLE...");
+		q.execute("DELETE FROM  ATTACHMENT;");
+		System.out.println("---DELETE ATTACHMENT TABLE...");
+		q.execute("DELETE FROM  DUPLICATE;");
+		System.out.println("---DELETE DUPLICATE TABLE...");
+		q.execute("DELETE FROM  FIXEDFILE;");
+		System.out.println("---DELETE FIXEDFILE TABLE...");
+		q.execute("DELETE FROM  COSINESIMILARITY;");
+		System.out.println("---DELETE COSINE SIMILARITY TABLE...");
+	}
 		
-	public void insertBugReport(int id,String prdName, String compName, String prodVersion, String author, String openDate, String modifiedDate, 
-			String status, String severity, String summary, String description) throws Exception
+	public void insertBugReport(int id, String author, String prdName, String compName, String prodVersion, String hw, String assignee, String openDate, String modifiedDate, 
+			String status, String priority, String severity, String summary, String description) throws Exception
 	{
 		try
 		{
 		Statement q = conn.createStatement();
-		q.execute("INSERT INTO BUG_REPORT VALUES ("+ id + ",'"+prdName+"','"+compName+"','"+prodVersion+"','"+author+"','"+openDate+"','"+modifiedDate+"','"+status
-					+"','"+severity+"','"+summary+"','"+description+"');");
+		q.execute("INSERT INTO BUG_REPORT VALUES ("+ id + ",'"+author+"','"+prdName+"','"+compName+"','"+prodVersion+"','"+hw+"','"+assignee+"','"+openDate+"','"+modifiedDate+"','"+status
+				+"','"+priority+"','"+severity+"','"+summary+"','"+description+"');");
+		}
+		catch(Exception e)
+		{
+			System.out.println("BUG REPORT #"+id+" INSERT ERROR");
+			System.err.println(e);
+		}
+	}
+	
+	public void insertInitBugReport(int id, String author, String prdName, String compName, String prodVersion, String hw, String assignee, String openDate, String modifiedDate, 
+			String status, String priority, String severity, String summary, String description) throws Exception
+	{
+		try
+		{
+		Statement q = conn.createStatement();
+		q.execute("INSERT INTO Initial_BUG_REPORT VALUES ("+ id + ",'"+author+"','"+prdName+"','"+compName+"','"+prodVersion+"','"+hw+"','"+assignee+"','"+openDate+"','"+modifiedDate+"','"+status
+				+"','"+priority+"','"+severity+"','"+summary+"','"+description+"');");
 		}
 		catch(Exception e)
 		{

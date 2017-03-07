@@ -17,6 +17,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+
 import common.Property;
 //import java.util.*;
 public class C_Parser {
@@ -145,7 +148,7 @@ public class C_Parser {
 		calendar1 = Calendar.getInstance();
 		calendar2 = Calendar.getInstance();
 		try{
-			Document doc = Jsoup.connect(url+bugID).timeout(3000).get();
+			Document doc = Jsoup.connect(url+bugID).timeout(5000).get();
 			String prdName = doc.select("td#field_container_product").text();
 			String compName = doc.select("td#field_container_component").text();		
 			Elements table = doc.select("td#bz_show_bug_column_1 table");
@@ -197,106 +200,170 @@ public class C_Parser {
 		  		db.insertComment(bugID, bugCommentTime.substring(0, 19), bugCommentText.replace("'","."), bugCommentAut.replace("'","."));
 			}
 			
-			
-			// MISOO STRUCTURE DATA
-			String reproduct = "";
-			String observed = "";
-			String expected ="";
-			if(Property.getInstance().getTargetStruct()){
-				if(! ((bugDes.contains("repro") || bugDes.contains("REPRO") || bugDes.contains("Repro") ||bugDes.contains("step") || bugDes.contains("STEP") || bugDes.contains("Step")) 
-						&& (bugDes.contains("EXPECT") || bugDes.contains("expect") || bugDes.contains("Expect")) 
-						&& (bugDes.contains("OBSERV") || bugDes.contains("observ") || bugDes.contains("Observ") || bugDes.contains("Actual") || bugDes.contains("actual") || bugDes.contains("ACTUAL"))
-						&& (bugDes.contains("result") || bugDes.contains("Result") || bugDes.contains("RESULT")))){
-					//System.out.println(bugDes);
-					System.err.println(bugID+" DOESNOT HAVE STRUCT INFO.");
-					return false;
-				}
-			}
-			
-			int repStartIndex = -1;
-			int obsStartIndex = -1;
-			int expStartIndex = -1;
-			
-			
-			if(bugDes.contains("step"))
-				repStartIndex = bugDes.indexOf("step");
-			else if(bugDes.contains("STEP"))
-				repStartIndex = bugDes.indexOf("STEP");
-			else if(bugDes.contains("Step"))
-				repStartIndex = bugDes.indexOf("Step");
-			else if(bugDes.contains("repro"))
-				repStartIndex = bugDes.indexOf("repro");
-			else if(bugDes.contains("REPRO"))
-				repStartIndex = bugDes.indexOf("REPRO");
-			else 
-				repStartIndex = bugDes.indexOf("Repro");
-			
-			if(bugDes.contains("OBSERV"))
-				obsStartIndex = bugDes.indexOf("OBSERV");
-			else if(bugDes.contains("observ"))
-				obsStartIndex = bugDes.indexOf("observ");
-			else if(bugDes.contains("Observ"))
-				obsStartIndex = bugDes.indexOf("Observ");
-			else if(bugDes.contains("Actual"))
-				obsStartIndex = bugDes.indexOf("Actual");
-			else if(bugDes.contains("actual"))
-				obsStartIndex = bugDes.indexOf("actual");
-			else obsStartIndex = bugDes.indexOf("ACTUAL");
-			
-			if(bugDes.contains("EXPECT"))
-				expStartIndex = bugDes.indexOf("EXPECT");
-			else if(bugDes.contains("expect"))
-				expStartIndex = bugDes.indexOf("expect");
-			else expStartIndex = bugDes.indexOf("Expect");
-			
-			int repEndIndex = repStartIndex;
-			int obsEndIndex = obsStartIndex;
-			int expEndIndex = expStartIndex;
-			if(repEndIndex > obsEndIndex){
-				if(repEndIndex > expEndIndex){
-					repEndIndex = bugDes.length()-1;
-					if(obsEndIndex > expEndIndex){
-						obsEndIndex = repStartIndex-1;
-						expEndIndex = obsStartIndex-1;
-					}else{
-						expEndIndex = repStartIndex-1;
-						obsEndIndex = expStartIndex-1;
-					}					
-				}else {
-					expEndIndex = bugDes.length()-1;
-					repEndIndex = expStartIndex-1;
-					obsEndIndex = repStartIndex-1;
-				}
-			}else if (obsEndIndex > expEndIndex){
-				if(obsEndIndex > repEndIndex){
-					obsEndIndex = bugDes.length()-1;
-					if(expEndIndex > repEndIndex){
-						expEndIndex = obsStartIndex-1;
-						repEndIndex = expStartIndex-1;
-					}else{
-						expEndIndex = repStartIndex-1;
-						repEndIndex = obsStartIndex-1;
-					}
-				}else{
-					repEndIndex = bugDes.length()-1;
-					obsEndIndex = repStartIndex-1;
-					expEndIndex = obsStartIndex-1;
-				}
-			}
-				
-			
+
 			// MISOO Stack Trace Regular Expression
 		    String stackTrace ="";
-		    String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*" +
+		    String tracePattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*" +
 		        		"[a-zA-Z_<(][a-zA-Z0-9_\\-$>);/\\[]*" +
 		        		"\\(([a-zA-Z_][a-zA-Z0-9_\\-]*\\.java:[0-9]*|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)inlined compiled code\\)|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)compiled code\\)|(?i)native method|(?i)unknown source)\\))";
 		        
-		    Pattern r = Pattern.compile(pattern);
+		    Pattern r = Pattern.compile(tracePattern);
 		    Matcher m = r.matcher(bugDes);
 	        while (m.find()) {
-	        	stackTrace =  stackTrace+"\n"+m.group();
+	        	String group = m.group();
+	        	stackTrace =  stackTrace+"\n"+group;
+	        	bugDes.replace(group, "");
 	        }
-	        		
+	        String[] temp = bugDes.split("}");	        
+	        
+	        // Misoo Source Coe Regular Expression
+	       /* String sourcePattern = "\\s*(public|private)\\s+class\\s+(\\w+)\\s+((extends\\s+\\w+)|(implements\\s+\\w+( ,\\w+)*))?\\s*\\{";	        
+	        sourcePattern = sourcePattern + "}";
+	        r = Pattern.compile(sourcePattern);
+	        m = r.matcher(bugDes);
+	        String sourceCode = "";
+	        while(m.find()){
+	        	String group = m.group();
+	        	System.out.println(group);
+	        	sourceCode =sourceCode +" "+group;
+	        	bugDes.replace(group, "");
+	        }
+	        System.out.println(sourceCode);
+	        
+	        //sourcePattern = "\\{([^()]|(?R))*\\}";
+	        //sourcePattern = "(\\{([^{}]|())*\\})";
+	        sourcePattern = "$\\{(.*)\\}";	        
+	        r = Pattern.compile(sourcePattern);
+	        m = r.matcher(bugDes);
+	        
+	        while(m.find()){
+	        	String group = m.group();
+	        	sourceCode =sourceCode +" "+group;
+	        	bugDes.replace(group, "");
+	        }
+	        System.out.println(sourceCode);
+	        
+	        // Wrong Regular Expression
+	        sourcePattern = "^(?![\\s]*\\r?\\n|import|package|[\\s]*}\\r?\\n|[\\s]*\\|[\\s]*\\*|[\\s]*\\*).*\\r?\\n";
+	        r = Pattern.compile(sourcePattern);
+	        m = r.matcher(bugDes);
+	        sourceCode = sourceCode="\n";
+	        while(m.find()){
+	        	String group = m.group();
+	        	sourceCode =sourceCode  +" "+group;
+	        	bugDes.replace(group, "");
+	        }
+	        
+	        System.out.println(sourceCode);*/
+	        
+	        // MISOO STRUCTURE DATA
+ 			String reproduct = "";
+ 			String observed = "";
+ 			String expected ="";
+ 			if(Property.getInstance().getTargetStruct()){
+ 				if(! ((bugDes.contains("repro") || bugDes.contains("REPRO") || bugDes.contains("Repro") ||bugDes.contains("step") || bugDes.contains("STEP") || bugDes.contains("Step") ||
+ 						(bugDes.contains("1.") && bugDes.contains("2."))) 
+ 						&& (bugDes.contains("EXPECT") || bugDes.contains("expect") || bugDes.contains("Expect") || bugDes.contains("want")) 
+ 						&& (bugDes.contains("OBSERV") || bugDes.contains("observ") || bugDes.contains("Observ") || bugDes.contains("Actual") || bugDes.contains("actual") || bugDes.contains("ACTUAL")))){
+ 						//&& (bugDes.contains("result") || bugDes.contains("Result") || bugDes.contains("RESULT")))){
+ 					//System.out.println(bugDes);
+ 					System.err.println(bugID+" DOESNOT HAVE STRUCT INFO.");
+ 					return false;
+ 				}
+ 			}
+ 			
+ 			int repStartIndex = -1;
+ 			int obsStartIndex = -1;
+ 			int expStartIndex = -1;
+ 			
+ 			
+ 			if(bugDes.contains("step"))
+ 				repStartIndex = bugDes.indexOf("step");
+ 			else if(bugDes.contains("STEP"))
+ 				repStartIndex = bugDes.indexOf("STEP");
+ 			else if(bugDes.contains("Step"))
+ 				repStartIndex = bugDes.indexOf("Step");
+ 			else if(bugDes.contains("repro"))
+ 				repStartIndex = bugDes.indexOf("repro");
+ 			else if(bugDes.contains("REPRO"))
+ 				repStartIndex = bugDes.indexOf("REPRO");
+ 			else if(bugDes.contains("Repro"))
+ 				repStartIndex = bugDes.indexOf("Repro");
+ 			else if(bugDes.contains("1.") && bugDes.contains("2. "))
+ 				repStartIndex = bugDes.indexOf("1. ");
+ 			
+ 			if(bugDes.contains("OBSERV"))
+ 				obsStartIndex = bugDes.indexOf("OBSERV");
+ 			else if(bugDes.contains("observ"))
+ 				obsStartIndex = bugDes.indexOf("observ");
+ 			else if(bugDes.contains("Observ"))
+ 				obsStartIndex = bugDes.indexOf("Observ");
+ 			else if(bugDes.contains("Actual"))
+ 				obsStartIndex = bugDes.indexOf("Actual");
+ 			else if(bugDes.contains("actual"))
+ 				obsStartIndex = bugDes.indexOf("actual");
+ 			else obsStartIndex = bugDes.indexOf("ACTUAL");
+ 			
+ 			if(bugDes.contains("EXPECT"))
+ 				expStartIndex = bugDes.indexOf("EXPECT");
+ 			else if(bugDes.contains("expect"))
+ 				expStartIndex = bugDes.indexOf("expect");
+ 			else if(bugDes.contains("Expect"))
+ 				expStartIndex = bugDes.indexOf("Expect");
+ 			else
+ 				expStartIndex = bugDes.indexOf("want");
+ 			
+ 			int repEndIndex = repStartIndex;
+ 			int obsEndIndex = obsStartIndex;
+ 			int expEndIndex = expStartIndex;
+ 			if(repEndIndex > obsEndIndex){
+ 				if(repEndIndex > expEndIndex){
+ 					repEndIndex = bugDes.length()-1;
+ 					if(obsEndIndex > expEndIndex){
+ 						obsEndIndex = repStartIndex-1;
+ 						expEndIndex = obsStartIndex-1;
+ 					}else{
+ 						expEndIndex = repStartIndex-1;
+ 						obsEndIndex = expStartIndex-1;
+ 					}					
+ 				}else {
+ 					expEndIndex = bugDes.length()-1;
+ 					repEndIndex = expStartIndex-1;
+ 					obsEndIndex = repStartIndex-1;
+ 				}
+ 			}else if (obsEndIndex > expEndIndex){
+ 				if(obsEndIndex > repEndIndex){
+ 					obsEndIndex = bugDes.length()-1;
+ 					if(expEndIndex > repEndIndex){
+ 						expEndIndex = obsStartIndex-1;
+ 						repEndIndex = expStartIndex-1;
+ 					}else{
+ 						expEndIndex = repStartIndex-1;
+ 						repEndIndex = obsStartIndex-1;
+ 					}
+ 				}else{
+ 					repEndIndex = bugDes.length()-1;
+ 					obsEndIndex = repStartIndex-1;
+ 					expEndIndex = obsStartIndex-1;
+ 				}
+ 			}else if (expEndIndex > obsEndIndex){
+ 				if(expEndIndex > repEndIndex){
+ 					expEndIndex = bugDes.length()-1;
+ 					if(obsEndIndex > repEndIndex){
+ 						repEndIndex = obsStartIndex-1;
+ 						obsEndIndex = expStartIndex-1;
+ 					}else{
+ 						obsEndIndex = repStartIndex-1;
+ 						repEndIndex = expStartIndex-1;
+ 					}
+ 				}else{
+ 					repEndIndex = bugDes.length()-1;
+ 					obsEndIndex = expStartIndex-1;
+ 					expEndIndex = repStartIndex-1;
+ 				}
+ 			}
+	        
+	        
 			if(bugDes.length()>99999)bugDes=bugDes.substring(0, 9999);			
 			
 			//MISOO GET HISTORY NUMBER

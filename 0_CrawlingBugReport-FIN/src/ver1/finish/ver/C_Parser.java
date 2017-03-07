@@ -126,7 +126,8 @@ public class C_Parser {
 			if(!IDs.contains(" "))
 			{
 				id[i]=Integer.parseInt(IDs);
-				severityList.put(Integer.parseInt(tmpID), str);
+				try{severityList.put(Integer.parseInt(tmpID), str);}
+				catch(Exception e){}
 				break;
 			}
 		}
@@ -144,14 +145,17 @@ public class C_Parser {
 		calendar2 = Calendar.getInstance();
 		try{
 			Document doc = Jsoup.connect(url+bugID).timeout(0).get();
+			String bugAut = doc.select("td#bz_show_bug_column_2 .vcard").text();
 			String prdName = doc.select("td#field_container_product").text();
-			String compName = doc.select("td#field_container_component").text();		
+			String compName = doc.select("td#field_container_component").text();			
 			Elements table = doc.select("td#bz_show_bug_column_1 table");
 			Element tr = table.select("tr").get(5);
 			String prodVersion =tr.select("td").text();
+			String hw = table.select("tr").get(6).select("td").text();
+			String assignee = table.select("tr").get(9).select("td").text();
 			String bugDates = doc.select("td#bz_show_bug_column_2 tr td").text();
 			String openDate = bugDates.substring(0,16)+":00";	
-			String bugAut = doc.select("td#bz_show_bug_column_2 .vcard").text();
+			
 			int k = bugDates.indexOf("(History)");
 			String modifiedDate = bugDates.substring(k-21,k-5)+":00";
 			String bugStatus="";
@@ -160,9 +164,12 @@ public class C_Parser {
 			}
 			else
 				bugStatus = doc.select("span#static_bug_status").text();
+			String priority = table.select("tr").get(7).select("td").text().split(" ")[0];
 			String severity = severityList.get(bugID);
 			String bugSum = doc.select("*#short_desc_nonedit_display").text();
 			String bugDes = doc.select("div#c0 .bz_comment_text").text();
+			//System.out.println(bugID+" "+hw+" "+assignee+" "+" "+priority);
+			
 			if(Property.getInstance().getTargetStruct()){
 				if(! ((bugDes.contains("repro") || bugDes.contains("REPRO") || bugDes.contains("Repro") ||bugDes.contains("step") || bugDes.contains("STEP") || bugDes.contains("Step")) 
 						&& (bugDes.contains("EXPECT") || bugDes.contains("expect") || bugDes.contains("Expect")) 
@@ -178,7 +185,7 @@ public class C_Parser {
 			if(contents.equals(bugDes))
 				return false;
 			else{
-				db.insertBugReport(bugID, prdName, compName,prodVersion, bugAut.replace("'","."), openDate, modifiedDate, bugStatus, severity, bugSum.replace("'","."), bugDes.replace("'","."));
+				db.insertBugReport(bugID,  bugAut.replace("'","."), prdName, compName,prodVersion, hw,assignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
 				contents = bugDes;			
 				if(doc.select("span#static_bug_status").text().contains("bug")){				
 					String dupID = doc.select("span#static_bug_status").text().split(" of bug ")[1];
@@ -258,7 +265,78 @@ public class C_Parser {
 					}
 				}
 			}
-	    	
+			
+			//History Information Crawling
+			String historyURL = "https://bugs.eclipse.org/bugs/show_activity.cgi?id=";
+			doc = Jsoup.connect(historyURL+bugID).timeout(0).get();
+			
+			//System.out.println("HEPPK : "+doc.select("div#bugzilla-body").select("table").select("tbody").select("tr").size());
+			table = doc.select("div#bugzilla-body").select("table").select("tbody");
+			//System.out.println("ELEMENTS: "+table.get(0));
+			String initPrd ="";
+			String initComp ="";
+			String initHw ="";
+			String initAssignee="";
+			String initPriority="";
+			String initSeverity="";
+			String initVer="";
+			int value = 0;
+			Elements els = table.select("tr");			
+			for(Element e: els){
+				if (value == 0){
+					value = 1;
+					continue;
+				}			
+				//System.out.println("HEPPK : "+e.getElementsByTag("td").get(2));
+				if(e.getElementsByTag("td").get(2).text().contains("Pro") && initPrd.equals("")){
+					if(e.getElementsByTag("td").size()==3)
+						initPrd =e.getElementsByTag("td").get(1).text();
+					else
+						initPrd =e.getElementsByTag("td").get(3).text();
+					prdName = initPrd;
+				}else if(e.getElementsByTag("td").get(2).text().contains("Com") && initComp.equals("")){
+					if(e.getElementsByTag("td").size()==3)
+						initComp =e.getElementsByTag("td").get(1).text();
+					else
+						initComp =e.getElementsByTag("td").get(3).text();
+					compName = initComp; 
+				}else if(e.getElementsByTag("td").get(2).text().contains("Ha") && initHw.equals("")){
+					if(e.getElementsByTag("td").size()==3)
+						initHw =e.getElementsByTag("td").get(1).text();
+					else
+						initHw =e.getElementsByTag("td").get(3).text();
+					hw = initHw; 
+				}else if(e.getElementsByTag("td").get(2).text().contains("Assi") && initAssignee.equals("")){
+					if(!e.getElementsByTag("td").get(2).text().contains("Inbox")){
+						if(e.getElementsByTag("td").size()==3)
+							initAssignee =e.getElementsByTag("td").get(1).text();
+						else
+							initAssignee =e.getElementsByTag("td").get(3).text();
+						assignee = initAssignee;
+					}
+				}else if(e.getElementsByTag("td").get(2).text().contains("Prio") && initPriority.equals("")){
+					if(e.getElementsByTag("td").size()==3)
+						initPriority =e.getElementsByTag("td").get(1).text();
+					else
+						initPriority =e.getElementsByTag("td").get(3).text();
+					priority = initPriority;
+				}else if(e.getElementsByTag("td").get(2).text().contains("Seve") && initSeverity.equals("")){
+					if(e.getElementsByTag("td").size()==3)
+						initSeverity =e.getElementsByTag("td").get(1).text();
+					else
+						initSeverity =e.getElementsByTag("td").get(3).text();
+					severity = initSeverity;
+				}else if(e.getElementsByTag("td").get(2).text().contains("Vers") && initVer.equals("")){
+					if(e.getElementsByTag("td").size()==3)
+						initVer =e.getElementsByTag("td").get(1).text();
+					else
+						initVer =e.getElementsByTag("td").get(3).text();
+					prodVersion = initVer;
+				}
+			}
+			
+			
+			db.insertInitBugReport(bugID, bugAut.replace("'","."), prdName, compName, prodVersion, hw,assignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
 		}
 		catch(Exception e){
 			e.printStackTrace();

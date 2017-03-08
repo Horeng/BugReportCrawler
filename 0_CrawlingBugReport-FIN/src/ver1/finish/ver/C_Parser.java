@@ -288,53 +288,53 @@ public class C_Parser {
 					continue;
 				}			
 				//System.out.println("HEPPK : "+e.getElementsByTag("td").get(2));
-				if(e.getElementsByTag("td").get(2).text().contains("Pro") && initPrd.equals("")){
-					if(e.getElementsByTag("td").size()==3)
+				if(e.getElementsByTag("td").size()==3){
+					if(e.getElementsByTag("td").get(0).text().contains("Pro") && initPrd.equals("")){
 						initPrd =e.getElementsByTag("td").get(1).text();
-					else
-						initPrd =e.getElementsByTag("td").get(3).text();
-					prdName = initPrd;
-				}else if(e.getElementsByTag("td").get(2).text().contains("Com") && initComp.equals("")){
-					if(e.getElementsByTag("td").size()==3)
+						prdName = initPrd;
+					}
+					else if(e.getElementsByTag("td").get(0).text().contains("Comp") && initComp.equals("")){				
 						initComp =e.getElementsByTag("td").get(1).text();
-					else
-						initComp =e.getElementsByTag("td").get(3).text();
-					compName = initComp; 
-				}else if(e.getElementsByTag("td").get(2).text().contains("Ha") && initHw.equals("")){
-					if(e.getElementsByTag("td").size()==3)
+						compName = initComp;
+					
+					}else if(e.getElementsByTag("td").get(0).text().contains("Ha") && initHw.equals("")){
 						initHw =e.getElementsByTag("td").get(1).text();
-					else
-						initHw =e.getElementsByTag("td").get(3).text();
-					hw = initHw; 
-				}else if(e.getElementsByTag("td").get(2).text().contains("Assi") && initAssignee.equals("")){					
-					if(e.getElementsByTag("td").size()==3)
+						hw = initHw;
+					}else if(e.getElementsByTag("td").get(0).text().contains("Assi") && initAssignee.equals(""))							
 						if(!e.getElementsByTag("td").get(1).text().contains("Inbox")){
 							initAssignee =e.getElementsByTag("td").get(1).text();	
 						}
-					else
+					else if(e.getElementsByTag("td").get(0).text().contains("Prio") && initPriority.equals(""))	{					
+						initPriority =e.getElementsByTag("td").get(1).text();
+						priority = initPriority;
+					}else if(e.getElementsByTag("td").get(0).text().contains("Seve") && initSeverity.equals("")){						
+						initSeverity =e.getElementsByTag("td").get(1).text();
+						severity = initSeverity;
+					}else if(e.getElementsByTag("td").get(0).text().contains("Vers") && initVer.equals("")){
+						initVer =e.getElementsByTag("td").get(1).text();
+						prodVersion = initVer;
+					}
+				}else{
+					if(e.getElementsByTag("td").get(2).text().contains("Pro") && initPrd.equals("")){
+						initPrd =e.getElementsByTag("td").get(3).text();prdName = initPrd;
+					}else if(e.getElementsByTag("td").get(2).text().contains("Comp") && initComp.equals("")){	
+						initComp =e.getElementsByTag("td").get(3).text();compName = initComp;
+					}else if(e.getElementsByTag("td").get(2).text().contains("Ha") && initHw.equals("")){
+						initHw =e.getElementsByTag("td").get(3).text();hw = initHw;
+					}else if(e.getElementsByTag("td").get(2).text().contains("Assi") && initAssignee.equals(""))							
 						if(!e.getElementsByTag("td").get(3).text().contains("Inbox")){
 							initAssignee =e.getElementsByTag("td").get(3).text();	
-						}			
-					
-				}else if(e.getElementsByTag("td").get(2).text().contains("Prio") && initPriority.equals("")){
-					if(e.getElementsByTag("td").size()==3)
-						initPriority =e.getElementsByTag("td").get(1).text();
-					else
-						initPriority =e.getElementsByTag("td").get(3).text();
-					priority = initPriority;
-				}else if(e.getElementsByTag("td").get(2).text().contains("Seve") && initSeverity.equals("")){
-					if(e.getElementsByTag("td").size()==3)
-						initSeverity =e.getElementsByTag("td").get(1).text();
-					else
-						initSeverity =e.getElementsByTag("td").get(3).text();
-					severity = initSeverity;
-				}else if(e.getElementsByTag("td").get(2).text().contains("Vers") && initVer.equals("")){
-					if(e.getElementsByTag("td").size()==3)
-						initVer =e.getElementsByTag("td").get(1).text();
-					else
-						initVer =e.getElementsByTag("td").get(3).text();
-					prodVersion = initVer;
+						}
+					else if(e.getElementsByTag("td").get(2).text().contains("Prio") && initPriority.equals("")){						
+						initPriority =e.getElementsByTag("td").get(3).text(); priority = initPriority;
+					}else if(e.getElementsByTag("td").get(2).text().contains("Seve") && initSeverity.equals("")){						
+						initSeverity =e.getElementsByTag("td").get(3).text();severity = initSeverity;
+					}else if(e.getElementsByTag("td").get(2).text().contains("Vers") && initVer.equals("")){
+						initVer =e.getElementsByTag("td").get(3).text();prodVersion = initVer;
+					}
 				}
+				
+				
 			}
 			
 			if(initAssignee.equals(""))

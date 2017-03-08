@@ -15,7 +15,7 @@ public class B_DB {
 	B_DB() throws Exception
 	{
 		Class.forName("org.h2.Driver");
-		conn = DriverManager.getConnection("jdbc:h2:./DB/"+Property.getInstance().getTargetResolution()+"/"+A_Main.project,"sa","");
+		conn = DriverManager.getConnection("jdbc:h2:./DB/STRUCT/"+Property.getInstance().getTargetResolution()+"/"+A_Main.project,"sa","");
 		System.out.println("-------- CONNECT WITH "+Property.getInstance().getTargetResolution()+" "+A_Main.project+" DB ----------");;
 		
 		if(conn!=null) createTable();

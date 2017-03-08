@@ -306,14 +306,16 @@ public class C_Parser {
 					else
 						initHw =e.getElementsByTag("td").get(3).text();
 					hw = initHw; 
-				}else if(e.getElementsByTag("td").get(2).text().contains("Assi") && initAssignee.equals("")){
-					if(!e.getElementsByTag("td").get(2).text().contains("Inbox")){
-						if(e.getElementsByTag("td").size()==3)
-							initAssignee =e.getElementsByTag("td").get(1).text();
-						else
-							initAssignee =e.getElementsByTag("td").get(3).text();
-						assignee = initAssignee;
-					}
+				}else if(e.getElementsByTag("td").get(2).text().contains("Assi") && initAssignee.equals("")){					
+					if(e.getElementsByTag("td").size()==3)
+						if(!e.getElementsByTag("td").get(1).text().contains("Inbox")){
+							initAssignee =e.getElementsByTag("td").get(1).text();	
+						}
+					else
+						if(!e.getElementsByTag("td").get(3).text().contains("Inbox")){
+							initAssignee =e.getElementsByTag("td").get(3).text();	
+						}			
+					
 				}else if(e.getElementsByTag("td").get(2).text().contains("Prio") && initPriority.equals("")){
 					if(e.getElementsByTag("td").size()==3)
 						initPriority =e.getElementsByTag("td").get(1).text();
@@ -335,8 +337,10 @@ public class C_Parser {
 				}
 			}
 			
-			
-			db.insertInitBugReport(bugID, bugAut.replace("'","."), prdName, compName, prodVersion, hw,assignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
+			if(initAssignee.equals(""))
+				db.insertInitBugReport(bugID, bugAut.replace("'","."), prdName, compName, prodVersion, hw,assignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
+			else
+				db.insertInitBugReport(bugID, bugAut.replace("'","."), prdName, compName, prodVersion, hw,initAssignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
 		}
 		catch(Exception e){
 			e.printStackTrace();

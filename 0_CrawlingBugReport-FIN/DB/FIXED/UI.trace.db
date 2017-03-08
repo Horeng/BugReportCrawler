@@ -906,3 +906,38 @@ CREATE TABLE FIXEDFILE(BUG_ID int,FILE_NAME VARCHAR(255),Commit_Date DATETIME,CO
 03-08 14:20:58 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: Table "COSINESIMILARITY" already exists; SQL statement:
 CREATE TABLE COSINESIMILARITY(BUG_ID int,FILENAME VARCHAR(255),PRD_NAME_CS double,BUG_OPEN_DATE_CS double,BUG_FIX_DATE_CS double,BUG_STA_CS double,BUG_SUM_CS double,BUG_DES_CS double,BUG_AUT_CS double,PRIMARY KEY(BUG_ID,FILENAME)); [42101-184]
+2017-03-08 22:10:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "call csvwrite('test,csv' select bug_status from bug_Report[*]');"; SQL statement:
+call csvwrite('test,csv' select bug_status from bug_Report'); [42000-192]
+2017-03-08 22:11:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: IO Exception: "IOException writing test.csv"; SQL statement:
+CALL CSVWRITE('test.csv', 'SELECT BUG_STATUS  FROM BUG_REPORT ') [90028-192]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:168)
+	at org.h2.tools.Csv.convertException(Csv.java:598)
+	at org.h2.tools.Csv.write(Csv.java:150)
+	at org.h2.tools.Csv.write(Csv.java:168)
+	at org.h2.expression.Function.getValueWithArgs(Function.java:1586)
+	at org.h2.expression.Function.getValue(Function.java:584)
+	at org.h2.command.dml.Call.query(Call.java:65)
+	at org.h2.command.CommandContainer.query(CommandContainer.java:110)
+	at org.h2.command.Command.executeQuery(Command.java:201)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:179)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:158)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1388)
+	at org.h2.server.web.WebApp.query(WebApp.java:1061)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1023)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1010)
+	at org.h2.server.web.WebThread.process(WebThread.java:164)
+	at org.h2.server.web.WebThread.run(WebThread.java:89)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: java.io.FileNotFoundException: test.csv (액세스가 거부되었습니다)
+	at java.io.FileOutputStream.open0(Native Method)
+	at java.io.FileOutputStream.open(Unknown Source)
+	at java.io.FileOutputStream.<init>(Unknown Source)
+	at java.io.FileOutputStream.<init>(Unknown Source)
+	at org.h2.store.fs.FilePathDisk.newOutputStream(FilePathDisk.java:290)
+	at org.h2.store.fs.FileUtils.newOutputStream(FileUtils.java:233)
+	at org.h2.tools.Csv.initWrite(Csv.java:258)
+	at org.h2.tools.Csv.write(Csv.java:147)
+	... 15 more

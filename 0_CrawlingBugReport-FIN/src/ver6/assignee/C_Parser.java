@@ -301,7 +301,7 @@ public class C_Parser {
 						initHw =e.getElementsByTag("td").get(1).text();
 						hw = initHw;
 					}else if(e.getElementsByTag("td").get(0).text().contains("Assi") && initAssignee.equals(""))							
-						if(!e.getElementsByTag("td").get(1).text().contains("Inbox") && !e.getElementsByTag("td").get(1).text().contains("inbox")){
+						if(!e.getElementsByTag("td").get(1).text().contains("Inbox") && !e.getElementsByTag("td").get(1).text().toLowerCase().contains(Property.getTargetProduct().toLowerCase())){
 							initAssignee =e.getElementsByTag("td").get(1).text();	
 						}
 					else if(e.getElementsByTag("td").get(0).text().contains("Prio") && initPriority.equals(""))	{					
@@ -337,8 +337,8 @@ public class C_Parser {
 				
 			}
 			
-			
-			db.insertInitBugReport(bugID, bugAut.replace("'","."), prdName, compName, prodVersion, hw,assignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
+			if(!initAssignee.equals(""))
+				db.insertInitBugReport(bugID, bugAut.replace("'","."), prdName, compName, prodVersion, hw,assignee, openDate, modifiedDate, bugStatus, priority,severity, bugSum.replace("'","."), bugDes.replace("'","."));
 			
 		}
 		catch(Exception e){

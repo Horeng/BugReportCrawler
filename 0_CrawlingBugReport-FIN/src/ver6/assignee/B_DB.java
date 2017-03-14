@@ -38,6 +38,7 @@ public class B_DB {
 					+ "COMP_NAME varchar(255),"
 					+ "PRD_VER varchar(50),"
 					+ "BUG_HW varchar(128),"
+					+ "BUG_INIT_ASSIGNEE varchar(255),"	
 					+ "BUG_ASSIGNEE varchar(255),"					
 					+ "BUG_OPEN_DATE DATETIME,"
 					+ "BUG_MODIFY_DATE DATETIME,"
@@ -220,13 +221,13 @@ public class B_DB {
 		}
 	}
 	
-	public void insertInitBugReport(int id, String author, String prdName, String compName, String prodVersion, String hw, String assignee, String openDate, String modifiedDate, 
+	public void insertInitBugReport(int id, String author, String prdName, String compName, String prodVersion, String hw, String initAssignee, String assignee, String openDate, String modifiedDate, 
 			String status, String priority, String severity, String summary, String description) throws Exception
 	{
 		try
 		{
 		Statement q = conn.createStatement();
-		q.execute("INSERT INTO Initial_BUG_REPORT VALUES ("+ id + ",'"+author+"','"+prdName+"','"+compName+"','"+prodVersion+"','"+hw+"','"+assignee+"','"+openDate+"','"+modifiedDate+"','"+status
+		q.execute("INSERT INTO Initial_BUG_REPORT VALUES ("+ id + ",'"+author+"','"+prdName+"','"+compName+"','"+prodVersion+"','"+hw+"','"+initAssignee+"','"+assignee+"','"+openDate+"','"+modifiedDate+"','"+status
 				+"','"+priority+"','"+severity+"','"+summary+"','"+description+"');");
 		}
 		catch(Exception e)

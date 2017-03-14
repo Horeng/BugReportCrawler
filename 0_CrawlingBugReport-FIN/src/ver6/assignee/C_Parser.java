@@ -292,7 +292,8 @@ public class C_Parser {
 					if(e.getElementsByTag("td").get(0).text().contains("Pro") && initPrd.equals("")){
 						initPrd =e.getElementsByTag("td").get(1).text();
 						prdName = initPrd;
-						if(prdName.toLowerCase().equals(Property.getTargetProduct().toLowerCase()))
+						//Except Product_Inbox
+						if(prdName.toLowerCase().contains(Property.getTargetProduct().toLowerCase()))
 							continue;						
 					}
 					else if(e.getElementsByTag("td").get(0).text().contains("Comp") && initComp.equals("")){				
